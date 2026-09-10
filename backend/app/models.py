@@ -15,8 +15,8 @@ class User(Base):
 
     id: Mapped[int] = mapped_column(primary_key=True)
     spotify_user_id: Mapped[str] = mapped_column(String(255), unique=True, index=True)
-    access_token: Mapped[str] = mapped_column(String(255), default="")
-    refresh_token: Mapped[str] = mapped_column(String(255), default="")
+    access_token: Mapped[str] = mapped_column(String, default="")
+    refresh_token: Mapped[str] = mapped_column(String, default="")
     is_demo: Mapped[bool] = mapped_column(Boolean, default=False)
     connected_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_utcnow)
     last_active_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_utcnow)

@@ -1,0 +1,29 @@
+from fastapi import APIRouter, Cookie, Depends, HTTPException
+from sqlalchemy.orm import Session
+
+from app.db import get_db
+from app.models import User
+from app.sessions import SESSION_COOKIE_NAME, read_session_token
+from app.spotify.client import get_top_tracks
+
+router = APIRouter(prefix="/recommendations", tags=["recommendations"])
+
+
+@router.get("")
+def get_recommendations(
+    db: Session = Depends(get_db),
+    attune_session: str | None = Cookie(default=None, alias=SESSION_COOKIE_NAME),
+) -> dict:
+    if attune_session is None:
+        raise HTTPException(status_code=401, detail="Not logged in")
+
+    spotify_user_id = read_session_token(attune_session)
+    if spotify_user_id is None:
+        raise HTTPException(status_code=401, detail="Invalid session")
+
+    user = db.query(User).filter_by(spotify_user_id=spotify_user_id).one_or_none()
+    if user is None:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    top_tracks = get_top_tracks(user.access_token)
+    return {"tracks": top_tracks}
