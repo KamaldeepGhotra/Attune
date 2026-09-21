@@ -9,6 +9,7 @@ class Settings(BaseSettings):
     spotify_client_secret: str = ""
     spotify_redirect_uri: str = "http://127.0.0.1:8000/auth/callback"
     session_secret: str = "dev-secret-change-me"
+    frontend_url: str = "http://127.0.0.1:5173"
 
 
 settings = Settings()

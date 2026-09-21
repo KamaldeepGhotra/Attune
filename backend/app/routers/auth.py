@@ -1,7 +1,8 @@
-from fastapi import APIRouter, Depends, Response
+from fastapi import APIRouter, Depends
 from fastapi.responses import RedirectResponse
 from sqlalchemy.orm import Session
 
+from app.config import settings
 from app.db import get_db
 from app.models import User
 from app.sessions import SESSION_COOKIE_NAME, create_session_token
@@ -17,7 +18,7 @@ def login() -> RedirectResponse:
 
 
 @router.get("/callback")
-def callback(code: str, response: Response, db: Session = Depends(get_db)) -> dict:
+def callback(code: str, db: Session = Depends(get_db)) -> RedirectResponse:
     tokens = exchange_code_for_tokens(code)
     profile = get_current_user_profile(tokens["access_token"])
 
@@ -34,7 +35,7 @@ def callback(code: str, response: Response, db: Session = Depends(get_db)) -> di
         user.refresh_token = tokens.get("refresh_token", user.refresh_token)
     db.commit()
 
+    redirect_response = RedirectResponse(settings.frontend_url)
     session_token = create_session_token(profile["id"])
-    response.set_cookie(SESSION_COOKIE_NAME, session_token, httponly=True)
-
-    return {"status": "connected", "spotify_user_id": profile["id"]}
+    redirect_response.set_cookie(SESSION_COOKIE_NAME, session_token, httponly=True)
+    return redirect_response
