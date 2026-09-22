@@ -3,9 +3,8 @@ import os
 
 from app.ml.clustering import train_clusters
 from app.ml.dataset import load_dataset
-from scripts.download_dataset import download_dataset
+from scripts.download_dataset import RAW_CSV_PATH, download_dataset
 
-RAW_CSV_PATH = "data/raw/spotify_tracks.csv"
 OUTPUT_DIR = os.path.join(os.path.dirname(__file__), "..", "app", "ml", "data")
 
 
