@@ -3,6 +3,7 @@ import os
 import httpx
 
 DATASET_URL = "https://huggingface.co/datasets/maharshipandya/spotify-tracks-dataset/resolve/main/dataset.csv"
+RAW_CSV_PATH = os.path.join(os.path.dirname(__file__), "..", "data", "raw", "spotify_tracks.csv")
 
 
 def download_dataset(dest_path: str) -> None:
@@ -18,4 +19,4 @@ def download_dataset(dest_path: str) -> None:
 
 
 if __name__ == "__main__":
-    download_dataset("data/raw/spotify_tracks.csv")
+    download_dataset(RAW_CSV_PATH)
