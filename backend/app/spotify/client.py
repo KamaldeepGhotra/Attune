@@ -20,3 +20,13 @@ def get_top_tracks(access_token: str, limit: int = 20) -> list[dict]:
     )
     response.raise_for_status()
     return response.json()["items"]
+
+
+def search_tracks(access_token: str, query: str, limit: int = 5) -> list[dict]:
+    response = httpx.get(
+        f"{SPOTIFY_API_BASE}/search",
+        headers={"Authorization": f"Bearer {access_token}"},
+        params={"q": query, "type": "track", "limit": limit},
+    )
+    response.raise_for_status()
+    return response.json()["tracks"]["items"]
