@@ -1,3 +1,6 @@
+import logging
+
+import httpx
 from fastapi import APIRouter, Cookie, Depends, HTTPException
 from sqlalchemy.orm import Session
 
@@ -8,6 +11,7 @@ from app.sessions import SESSION_COOKIE_NAME, read_session_token
 from app.spotify.client import get_top_tracks, search_tracks
 
 router = APIRouter(prefix="/recommendations", tags=["recommendations"])
+logger = logging.getLogger(__name__)
 
 
 @router.get("")
@@ -31,13 +35,18 @@ def get_recommendations(
     try:
         queries = suggest_search_queries(top_tracks)
     except Exception:
+        logger.warning("candidate discovery failed; falling back to top tracks", exc_info=True)
         queries = []
 
     known_track_ids = {track["id"] for track in top_tracks}
     seen_ids = set(known_track_ids)
     candidates = []
     for query in queries:
-        for track in search_tracks(user.access_token, query):
+        try:
+            results = search_tracks(user.access_token, query)
+        except httpx.HTTPError:
+            continue
+        for track in results:
             if track["id"] not in seen_ids:
                 candidates.append(track)
                 seen_ids.add(track["id"])
