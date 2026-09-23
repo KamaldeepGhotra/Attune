@@ -19,6 +19,7 @@ services:
       SPOTIFY_REDIRECT_URI: ${SPOTIFY_REDIRECT_URI:-http://127.0.0.1:8000/auth/callback}
       SESSION_SECRET: ${SESSION_SECRET:-dev-secret-change-me}
       FRONTEND_URL: ${FRONTEND_URL:-http://127.0.0.1:5173}
+      GEMINI_API_KEY: ${GEMINI_API_KEY}
     ports:
       - "8000:8000"
     depends_on:

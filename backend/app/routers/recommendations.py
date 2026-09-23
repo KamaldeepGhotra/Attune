@@ -2,9 +2,10 @@ from fastapi import APIRouter, Cookie, Depends, HTTPException
 from sqlalchemy.orm import Session
 
 from app.db import get_db
+from app.llm.client import suggest_search_queries
 from app.models import User
 from app.sessions import SESSION_COOKIE_NAME, read_session_token
-from app.spotify.client import get_top_tracks
+from app.spotify.client import get_top_tracks, search_tracks
 
 router = APIRouter(prefix="/recommendations", tags=["recommendations"])
 
@@ -26,4 +27,19 @@ def get_recommendations(
         raise HTTPException(status_code=404, detail="User not found")
 
     top_tracks = get_top_tracks(user.access_token)
-    return {"tracks": top_tracks}
+
+    try:
+        queries = suggest_search_queries(top_tracks)
+    except Exception:
+        queries = []
+
+    known_track_ids = {track["id"] for track in top_tracks}
+    seen_ids = set(known_track_ids)
+    candidates = []
+    for query in queries:
+        for track in search_tracks(user.access_token, query):
+            if track["id"] not in seen_ids:
+                candidates.append(track)
+                seen_ids.add(track["id"])
+
+    return {"tracks": candidates if queries else top_tracks}
