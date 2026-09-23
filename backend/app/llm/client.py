@@ -21,7 +21,10 @@ def suggest_search_queries(top_tracks: list[dict], count: int = 5) -> list[str]:
         f"Do not suggest any artist already in their most-listened list."
     )
 
-    client = genai.Client(api_key=settings.gemini_api_key)
+    client = genai.Client(
+        api_key=settings.gemini_api_key,
+        http_options=types.HttpOptions(timeout=10_000),
+    )
     response = client.models.generate_content(
         model="gemini-flash-latest",
         contents=prompt,

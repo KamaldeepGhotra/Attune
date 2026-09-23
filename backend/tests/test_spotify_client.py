@@ -32,7 +32,7 @@ def test_get_top_tracks_returns_items_list():
 
 @respx.mock
 def test_search_tracks_returns_items_list():
-    respx.get("https://api.spotify.com/v1/search").mock(
+    route = respx.get("https://api.spotify.com/v1/search").mock(
         return_value=httpx.Response(
             200,
             json={
@@ -50,3 +50,6 @@ def test_search_tracks_returns_items_list():
 
     assert len(tracks) == 2
     assert tracks[0]["id"] == "track1"
+    assert route.calls.last.request.url.params["type"] == "track"
+    assert route.calls.last.request.url.params["q"] == "dream pop"
+    assert route.calls.last.request.url.params["limit"] == "2"
